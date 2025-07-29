@@ -17,6 +17,7 @@ BACKGROUND = pygame.transform.scale(BACKGROUND, (WIDTH, HEIGHT))
 PIPE_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "pipe.png"))
 BOTTLE_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "bottle.png"))
 BG_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "title.png"))
+pygame.mixer.music.load(os.path.join("thelastdrop", "assets", "watermusic.mp3"))
 
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
@@ -211,6 +212,12 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if game_state == "menu":
+            if not pygame.mixer.music.get_busy():
+                pygame.mixer.music.play(-1)  # -1 means loop indefinitely
+        else:  # game state
+            if pygame.mixer.music.get_busy():
+                pygame.mixer.music.stop()
         if game_state == "menu":
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if button_rect and button_rect.collidepoint(event.pos):
