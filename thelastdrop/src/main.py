@@ -15,10 +15,13 @@ pygame.display.set_caption("Hello Pygame")
 
 #load sprite sheet
 sprite_sheet = pygame.image.load(os.path.join("thelastdrop", "assets", "prototype_character.png")).convert_alpha()
+shadow_sprite = pygame.image.load(os.path.join("thelastdrop", "assets", "prototype_character_shadow.png")).convert_alpha()
 
 sheet_width, sheet_height = sprite_sheet.get_size()
 sprite_width = sheet_width // 4   # since 4 columns
 sprite_height = sheet_height // 12  # since 10 rows
+
+shadow_sprite_scaled = pygame.transform.scale(shadow_sprite, (sprite_width * 3, sprite_height * 3))
 
 def get_sprite(sheet, row, col):
     character = pygame.Rect(col * sprite_width, row * sprite_height, sprite_width, sprite_height)
@@ -72,6 +75,9 @@ while running:
 
     sprite = pygame.transform.scale(anim[current_frame], (sprite_width*3,sprite_height*3))
     screen.fill((255, 255, 255))  # Fill screen with white
+
+    screen.blit(shadow_sprite_scaled, (x, y)) 
+
     screen.blit(sprite, (x, y))  # Draw the sprite at position (x and y)
     pygame.display.update()  # Update the screen    
 
