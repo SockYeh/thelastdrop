@@ -29,17 +29,17 @@ def get_sprite(sheet, row, col):
     image.blit(sheet, (0, 0), character)
     return image
 
-idle_frames = [get_sprite(sprite_sheet, 0, col) for col in range(2)]               #idle frames
+idle_frames = [get_sprite(sprite_sheet, 0, col) for col in range(4)]               #idle frames
 walk_up = [get_sprite(sprite_sheet, 5, col) for col in range(4)]                   #walking up frames
 walk_down = [get_sprite(sprite_sheet, 3, col) for col in range(4)]                 #walking down frames
 walk_right = [get_sprite(sprite_sheet, 4, col) for col in range(4)]                #walking right
 walk_left = [pygame.transform.flip(frame, True, False) for frame in walk_right]    #walking left
 
 current_frame = 0
-animation_speed = 100  # milliseconds per frame (0.3 seconds)
+animation_speed = 64 # milliseconds per frame (0.3 seconds)
 last_update = pygame.time.get_ticks()
 
-anim = walk_right
+anim = idle_frames
 
 x=100
 y=100
@@ -53,10 +53,6 @@ while running:
         if event.type == pygame.QUIT:
             running = False
     
-    if now - last_update > animation_speed:
-        current_frame = (current_frame + 1) % len(anim)
-        last_update = now
-
     keys=pygame.key.get_pressed()
 
     if keys[pygame.K_LEFT]:
@@ -71,6 +67,13 @@ while running:
     elif keys[pygame.K_DOWN]:
         anim = walk_down
         y += MOVE_SPEED
+    else:
+        anim = idle_frames
+
+    if now - last_update > animation_speed:
+        current_frame = (current_frame + 1) % len(anim)
+        last_update = now
+
 
 
     sprite = pygame.transform.scale(anim[current_frame], (sprite_width*3,sprite_height*3))
