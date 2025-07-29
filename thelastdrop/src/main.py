@@ -1,4 +1,4 @@
-import pygame, os
+import pygame, os , math
 
 pygame.init()
 pygame.font.init()
@@ -10,9 +10,10 @@ MOVE_SPEED = 5
 FONT = pygame.font.SysFont("comicsans", 30)
 
 CHAR_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "char_temp.jpg"))
-BG_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "bg.png"))
+MENU_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "bg.png"))
 PIPE_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "pipe.png"))
 BOTTLE_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "bottle.png"))
+BG_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "title.png"))
 
 
 WIDTH = 1600
@@ -100,67 +101,95 @@ last_update = pygame.time.get_ticks()
 
 anim = idle_frames
 
+def draw_menu():
+    SCREEN.blit(pygame.transform.scale(scaled_bg, (1800, 1000)), (-100, -150))
+    button_text = FONT.render("Click Here to Start", 1, (255, 255, 255))
+    button_rect = button_text.get_rect(center=(WIDTH // 2, HEIGHT*0.85))
+    pygame.draw.rect(SCREEN, (50, 50, 250), button_rect.inflate(20, 20))
+    SCREEN.blit(button_text, button_rect)
+    pygame.display.update()
+    return button_rect
+
+game_state = "menu"
+running = True
+button_rect = None
 
 # Game loop
 running = True
 bottles.append(draw_bottle(300, 300))
 while running:
     now = pygame.time.get_ticks()
-    # Example bottle position
+    pulsate_speed = 0.005  # change this for faster/slower pulsation
+    scale_factor = 1 + 0.9 * math.sin(now * pulsate_speed)  # oscillates between 
+    scaled_width = int(WIDTH * scale_factor)
+    scaled_height = int(HEIGHT * scale_factor)
+    scaled_bg = pygame.transform.scale(BG_SPRITE, (scaled_width, scaled_height))
 
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        if game_state == "menu":
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if button_rect and button_rect.collidepoint(event.pos):
+                    game_state = "game"
+        elif game_state == "game":
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:  # ESC to go back to menu
+                    game_state = "menu"
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
-        anim = walk_left
-        character.x -= MOVE_SPEED
-    elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
-        anim = walk_right
-        character.x += MOVE_SPEED
-    elif keys[pygame.K_UP] or keys[pygame.K_w]:
-        anim = walk_up
-        character.y -= MOVE_SPEED
-    elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
-        anim = walk_down
-        character.y += MOVE_SPEED
-    else:
-        anim = idle_frames
+    if game_state == "menu":
+        button_rect = draw_menu()
 
-    if now - last_update > animation_speed:
-        current_frame = (current_frame + 1) % len(anim)
-        last_update = now
+    elif game_state == "game":
+        if keys[pygame.K_LEFT] or keys[pygame.K_a]:
+            anim = walk_left
+            character.x -= MOVE_SPEED
+        elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
+            anim = walk_right
+            character.x += MOVE_SPEED
+        elif keys[pygame.K_UP] or keys[pygame.K_w]:
+            anim = walk_up
+            character.y -= MOVE_SPEED
+        elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
+            anim = walk_down
+            character.y += MOVE_SPEED
+        else:
+            anim = idle_frames
 
-    sprite = pygame.transform.scale(
-        anim[current_frame], (sprite_width * 3, sprite_height * 3)
-    )
+        if now - last_update > animation_speed:
+            current_frame = (current_frame + 1) % len(anim)
+            last_update = now
 
-    SCREEN.blit(pygame.transform.scale(BG_SPRITE, (1600, 800)), (0, 0))
-
-    SCREEN.blit(shadow_sprite_scaled, (character.x, character.y))
-    SCREEN.blit(
-        sprite, (character.x, character.y)
-    )  # Draw the sprite at position (x and y)
-
-    draw_score(0)  # Placeholder for score, can be updated later
-    for bottle in bottles:
-        SCREEN.blit(
-            pygame.transform.scale(BOTTLE_SPRITE, (50, 50)), (bottle.x, bottle.y)
+        sprite = pygame.transform.scale(
+            anim[current_frame], (sprite_width * 3, sprite_height * 3)
         )
-    if handle_collision(character, bottles):
-        print("Collision detected!")
-        draw_score(10)
-        try:
-            bottles.remove(bottle)
-        except ValueError:
-            print("Bottle already removed or not found.")
-        # remove bottle from SCREEN
-    pygame.display.set_caption(f"The Last Drop - Score: {SCORE}")
-    pygame.display.update()  # Update the SCREEN
 
-    clock.tick(60)
+        SCREEN.blit(pygame.transform.scale(MENU_SPRITE, (1600, 800)), (0, 0))
+
+        SCREEN.blit(shadow_sprite_scaled, (character.x, character.y))
+        SCREEN.blit(
+            sprite, (character.x, character.y)
+        )  # Draw the sprite at position (x and y)
+
+        draw_score(0)  # Placeholder for score, can be updated later
+        for bottle in bottles:
+            SCREEN.blit(
+                pygame.transform.scale(BOTTLE_SPRITE, (50, 50)), (bottle.x, bottle.y)
+            )
+        if handle_collision(character, bottles):
+            print("Collision detected!")
+            draw_score(10)
+            try:
+                bottles.remove(bottle)
+            except ValueError:
+                print("Bottle already removed or not found.")
+            # remove bottle from SCREEN
+        pygame.display.set_caption(f"The Last Drop - Score: {SCORE}")
+        pygame.display.update()  # Update the SCREEN
+
+        clock.tick(60)
 
 
 # Quit Pygame
