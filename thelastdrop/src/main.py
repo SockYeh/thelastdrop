@@ -9,13 +9,15 @@ pygame.init()
 WIDTH = 1600
 HEIGHT = 800
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
+clock = pygame.time.Clock()
 pygame.display.set_caption("Hello Pygame")
 
 #load sprite sheet
 sprite_sheet = pygame.image.load(os.path.join("thelastdrop", "assets", "prototype_character.png")).convert_alpha()
 
-sprite_width = 16
-sprite_height = 16
+sheet_width, sheet_height = sprite_sheet.get_size()
+sprite_width = sheet_width // 4   # since 4 columns
+sprite_height = sheet_height // 12  # since 10 rows
 
 def get_sprite(sheet, row, col):
     rect = pygame.Rect(col * sprite_width, row * sprite_height, sprite_width, sprite_height)
@@ -24,23 +26,39 @@ def get_sprite(sheet, row, col):
     return image
 
 idle_frames = [get_sprite(sprite_sheet, 0, col) for col in range(2)]               #idle frames
-walk_up = [get_sprite(sprite_sheet, 6, col) for col in range(4)]                   #walking up frames
-walk_down = [get_sprite(sprite_sheet, 4, col) for col in range(4)]                 #walking down frames
-walk_right = [get_sprite(sprite_sheet, 5, col) for col in range(4)]                #walking right
+walk_up = [get_sprite(sprite_sheet, 5, col) for col in range(4)]                   #walking up frames
+walk_down = [get_sprite(sprite_sheet, 3, col) for col in range(4)]                 #walking down frames
+walk_right = [get_sprite(sprite_sheet, 4, col) for col in range(4)]                #walking right
 walk_left = [pygame.transform.flip(frame, True, False) for frame in walk_right]    #walking left
- 
-sprite = walk_down[0]
+
+current_frame = 0
+animation_speed = 100  # milliseconds per frame (0.3 seconds)
+last_update = pygame.time.get_ticks()
+
+anim = walk_right
 
 # Game loop
 running = True
 while running:
+    now = pygame.time.get_ticks()
+
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+    
+    if now - last_update > animation_speed:
+        current_frame = (current_frame + 1) % len(anim)
+        last_update = now
 
+    sprite = pygame.transform.scale(anim[current_frame], (sprite_width*3,sprite_height*3))
     screen.fill((255, 255, 255))  # Fill screen with white
     screen.blit(sprite, (100, 100))  # Draw the sprite at position (100, 100)
-    pygame.display.update()  # Update the screen
+    pygame.display.update()  # Update the screen    
+
+    clock.tick(60) 
+
+    
+    
 
 # Quit Pygame
 pygame.quit()
