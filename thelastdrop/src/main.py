@@ -8,6 +8,7 @@ pygame.init()
 
 WIDTH = 1600
 HEIGHT = 800
+MOVE_SPEED = 5
 screen = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption("Hello Pygame")
@@ -20,9 +21,9 @@ sprite_width = sheet_width // 4   # since 4 columns
 sprite_height = sheet_height // 12  # since 10 rows
 
 def get_sprite(sheet, row, col):
-    rect = pygame.Rect(col * sprite_width, row * sprite_height, sprite_width, sprite_height)
+    character = pygame.Rect(col * sprite_width, row * sprite_height, sprite_width, sprite_height)
     image = pygame.Surface((sprite_width, sprite_height), pygame.SRCALPHA)
-    image.blit(sheet, (0, 0), rect)
+    image.blit(sheet, (0, 0), character)
     return image
 
 idle_frames = [get_sprite(sprite_sheet, 0, col) for col in range(2)]               #idle frames
@@ -37,6 +38,9 @@ last_update = pygame.time.get_ticks()
 
 anim = walk_right
 
+x=100
+y=100
+
 # Game loop
 running = True
 while running:
@@ -50,14 +54,28 @@ while running:
         current_frame = (current_frame + 1) % len(anim)
         last_update = now
 
+    keys=pygame.key.get_pressed()
+
+    if keys[pygame.K_LEFT]:
+       anim = walk_left
+       x-= MOVE_SPEED
+    elif keys[pygame.K_RIGHT]:
+        anim = walk_right
+        x += MOVE_SPEED
+    elif keys[pygame.K_UP]:
+       anim = walk_up
+       y -= MOVE_SPEED
+    elif keys[pygame.K_DOWN]:
+        anim = walk_down
+        y += MOVE_SPEED
+
+
     sprite = pygame.transform.scale(anim[current_frame], (sprite_width*3,sprite_height*3))
     screen.fill((255, 255, 255))  # Fill screen with white
-    screen.blit(sprite, (100, 100))  # Draw the sprite at position (100, 100)
+    screen.blit(sprite, (x, y))  # Draw the sprite at position (x and y)
     pygame.display.update()  # Update the screen    
 
     clock.tick(60) 
-
-    
     
 
 # Quit Pygame
