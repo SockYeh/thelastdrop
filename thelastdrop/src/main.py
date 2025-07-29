@@ -1,22 +1,21 @@
-import pygame, os
+import pygame, os, sys
 
 pygame.init()
 pygame.font.init()
 
 FPS = 60
 MOVE_SPEED = 5
-
+WIDTH = 1600
+HEIGHT = 800
 
 FONT = pygame.font.SysFont("comicsans", 30)
 
 CHAR_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "char_temp.jpg"))
-BG_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "bg.png"))
+background = pygame.image.load(os.path.join("thelastdrop", "assets", "background.png"))
+background = pygame.transform.scale(background, (WIDTH, HEIGHT))
 PIPE_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "pipe.png"))
 BOTTLE_SPRITE = pygame.image.load(os.path.join("thelastdrop", "assets", "bottle.png"))
 
-
-WIDTH = 1600
-HEIGHT = 800
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 clock = pygame.time.Clock()
 pygame.display.set_caption("The Last Drop")
@@ -106,6 +105,7 @@ running = True
 bottles.append(draw_bottle(300, 300))
 while running:
     now = pygame.time.get_ticks()
+    SCREEN.blit(background, (0, 0))
     # Example bottle position
 
     for event in pygame.event.get():
@@ -137,8 +137,6 @@ while running:
         anim[current_frame], (sprite_width * 3, sprite_height * 3)
     )
 
-    SCREEN.blit(pygame.transform.scale(BG_SPRITE, (1600, 800)), (0, 0))
-
     SCREEN.blit(shadow_sprite_scaled, (character.x, character.y))
     SCREEN.blit(
         sprite, (character.x, character.y)
@@ -165,3 +163,30 @@ while running:
 
 # Quit Pygame
 pygame.quit()
+width, height = 800, 600
+screen = pygame.display.set_mode((width, height))
+pygame.display.set_caption("The Last Drop")
+running = True
+clock = pygame.time.Clock()
+walls = [
+    pygame.Rect(50, 50, 700, 500),  # Example wall
+    pygame.Rect(100, 100, 600, 400),  # Another example wall
+]
+while running:
+    for event in pygame.event.get():
+        if event.type == pygame.QUIT:
+            running = False
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                running = False
+    screen.blit(background, (0, 0))
+    pygame.display.flip()
+    clock.tick(60)
+    collision = False
+    for wall in walls:
+        if character_rect.colliderect(wall):
+            collision = True
+    if not collision:
+        character = character.move(x, y)
+pygame.quit()
+sys.exit()
