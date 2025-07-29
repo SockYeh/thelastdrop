@@ -36,7 +36,7 @@ walk_right = [get_sprite(sprite_sheet, 4, col) for col in range(4)]             
 walk_left = [pygame.transform.flip(frame, True, False) for frame in walk_right]    #walking left
 
 current_frame = 0
-animation_speed = 64 # milliseconds per frame (0.3 seconds)
+animation_speed = 60 # milliseconds per frame
 last_update = pygame.time.get_ticks()
 
 anim = idle_frames
@@ -55,16 +55,16 @@ while running:
     
     keys=pygame.key.get_pressed()
 
-    if keys[pygame.K_LEFT]:
+    if keys[pygame.K_LEFT] or keys[pygame.K_a]:
        anim = walk_left
        x-= MOVE_SPEED
-    elif keys[pygame.K_RIGHT]:
+    elif keys[pygame.K_RIGHT] or keys[pygame.K_d]:
         anim = walk_right
         x += MOVE_SPEED
-    elif keys[pygame.K_UP]:
+    elif keys[pygame.K_UP] or keys[pygame.K_w]:
        anim = walk_up
        y -= MOVE_SPEED
-    elif keys[pygame.K_DOWN]:
+    elif keys[pygame.K_DOWN] or keys[pygame.K_s]:
         anim = walk_down
         y += MOVE_SPEED
     else:
