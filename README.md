@@ -1,5 +1,5 @@
 # The Last Drop
-
+![The Last Drop](https://github.com/SockYeh/thelastdrop/blob/main/thelastdrop/assets/title.png)
 A stealth-based bottle collection game built with Pygame.
 
 ## Backstory
